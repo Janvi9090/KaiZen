@@ -1,0 +1,9 @@
+body{
+    background-color: #d9f2ed;
+    display: flex;
+    justify-content:center;
+    text-align: center;
+    font-family: "Nunito", sans-serif;
+    /* font-family: "PT Sans", sans-serif; */
+    
+}
