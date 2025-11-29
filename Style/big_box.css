@@ -1,4 +1,5 @@
 body{
+    box-sizing: border-box;
     background-color: #d9f2ed;
     display: flex;
     justify-content:center;
@@ -11,6 +12,7 @@ body{
 #big-box h1{
     color:rgb(0, 54, 36);
     font-size: 50px;
+    margin-bottom: 0%;
 }
 #big-box p{
     color: rgb(39, 65, 63);
@@ -24,9 +26,10 @@ body{
 
 .guide{
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 5px;
-    border: 1px solid black;
+    gap: 3px;
+    border: 1px solid #d9f2ed;
     border-radius: 10px;
     padding: 5px 10px;
     font-weight:500;
@@ -34,7 +37,7 @@ body{
     max-width: 120px;
     margin: 10px;
     background-color: #d9f2ed;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); */
 }
 .guide .bd{
     height: 17px;
@@ -53,4 +56,36 @@ body{
 
 .guide .ds{
     height: 13px;
+}
+
+#switchbtn{
+    background-color:#bdf4e9;
+    margin: 20px;
+    border: 1px solid rgb(9, 65, 41);
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-weight:500;
+    align-self: center;
+    width: fit-content;
+    
+}
+
+.main{
+  margin: 0 auto; 
+  height: 200px;
+  width: 300px;
+  background-color: #fff;
+  border: 1px solid green;
+  border-radius: 10px;
+}
+
+@media(max-width: 550px){
+    #big-box h1{
+        font-size: 35px;
+    }
+
+    .guide{
+        font-size: 15px;
+    }
+
 }

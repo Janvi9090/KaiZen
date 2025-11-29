@@ -1,30 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KaiZen</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./Style/big_box.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Cookie&family=Great+Vibes&family=Italianno&family=Libertinus+Serif+Display&family=Marck+Script&family=Norican&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Parisienne&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Yesteryear&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KaiZen</title>
+  <link rel="stylesheet" href="./Style/big_box.css" />
+  <style>
+    /* preserve existing styles... */
+    .main{
+      margin: 0 auto;
+      display: inline-block;
+      width: auto;
+      height: auto;
+      max-width: 90vw;
+      min-width: 220px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid green;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+    #big-box{ 
+        display:flex; 
+        flex-direction:column; 
+        gap:1rem; transition:all .25s ease; 
+        align-items:stretch; 
+    }
+    #switchbtn{ 
+        display:inline-flex; 
+        align-items:center; 
+        gap:6px; cursor:pointer; 
+    }
+    #switchIcon{ 
+        height:18px; 
+        transition:transform .25s ease; 
+        display:inline-block; 
+        vertical-align:middle; 
+        margin-right:6px; 
+    }
+    #switchIcon.rotated{ 
+        transform:rotate(90deg); 
+    }
+
+    /* task row */
+    .task-row{ 
+        display:flex; 
+        align-items:center; 
+        gap:10px; 
+        padding:8px 6px; 
+        background:white; 
+        position:relative; 
+    }
+    .round-checkbox{ 
+        -webkit-appearance:none; 
+        appearance:none; 
+        width:20px; 
+        height:20px; 
+        border-radius:50%; 
+        border:2px solid #101a16; 
+        cursor:pointer; 
+        background:white; 
+        flex:0 0 auto; 
+        position:relative; 
+    }
+    .round-checkbox:checked{ 
+        background:#0b6b4b; 
+        border-color:#0b6b4b; 
+    }
+    .round-checkbox:checked::after{ 
+        content:''; 
+        position:absolute; 
+        left:5px; 
+        top:2px; 
+        width:4px; 
+        height:8px; 
+        border:2px solid #fff; 
+        border-width:0 2px 2px 0; 
+        transform:rotate(45deg); 
+    }
+
+    .task-input{ 
+        width: 350px;
+        max-width: 350px;
+        flex:1 1 auto; 
+        display:flex; 
+        align-items:center; 
+        gap:8px; 
+    }
+    .task-input input[type="text"]{ 
+        width:100%; 
+        padding:6px 8px; 
+        border-radius:8px; 
+        border:none; 
+        outline:none; 
+        font-size:14px; 
+        background:transparent; 
+    }
+
+    .task-textarea{
+        width:100%;
+        box-sizing:border-box;
+        padding:6px 8px;
+        border-radius:8px;
+        border:none;
+        outline:none;
+        font-size:14px;
+        background:transparent;
+        resize:none;              /* user cannot drag-resize */
+        overflow:hidden;          /* hide scrollbars (height controlled by JS) */
+        /* ensure long text wraps to the next visual line */
+        white-space:pre-wrap;     /* preserve newlines and wrap long lines */
+        overflow-wrap:break-word; /* break long words if needed */
+        line-height:1.2;
+    }
+
+    /* keep checkbox on first line (top) */
+    .task-row{
+        display:flex;
+        align-items:flex-start;
+        gap:10px;
+    }
+    .round-checkbox{ margin-top:6px; } /* small offset so checkbox aligns with first line */
+
+
+    /* action icons inside each task row */
+    .task-actions{ 
+        display:flex; 
+        gap:12px; 
+        justify-content: center;
+        align-items: center; 
+        width: 100%;
+        margin-top: 4px;
+    }
+    .task-actions button{ background:transparent; border:none; padding:4px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+    .task-actions img{ width:18px; height:18px; }
+    .task-actions button[data-action="add-task"] img{ width:24px; height:24px; }
+
+    /* connector between main tasks (vertical line) */
+    .connector{ width:2px; height:18px; background:#0b6b4b; margin:6px auto; }
+
+    /* subtasks container and style */
+    .subtasks{ margin-left:34px; margin-top:6px; display:flex; flex-direction:column; gap:6px; }
+    .subtask-row{ display:flex; align-items:center; gap:8px; padding:6px; background:#fbfffb; border-radius:6px; }
+    .branch-connector{ width:14px; height:2px; background:#0b6b4b; margin-left:20px; margin-bottom:4px; }
+
+    @media(max-width:550px){ .task-actions{ gap:8px; } }
+  </style>
 </head>
 <body>
-    <div id="big-box">
-    <h1> Flow Task Maker</h1>
-    <p> Create Workflow with main-tasks and sub-tasks</p>
+  <div id="big-box">
+    <h1>Flow Task Maker</h1>
+    <p>Create Workflow with main-tasks and sub-tasks</p>
 
-    <div id="Guidelines">  
-        <div class="guide"> <img src="./Style/black dot.png" alt="bd" class="bd">MainTask</div>
-        <div class="guide"> <img src="./Style/circle-clipart-hollow.png" alt="hd" class="hd">SubTask</div>
-        <div class="guide"> <img src="./Style/plus_sign.png" alt="ps" class="ps">Add</div>
-        <div class="guide"> <img src="./Style/first_arrow.png" alt="fa" class="fa">Branch</div>
-        <div class="guide"> <img src="./Style/Red_X.svg.png" alt="ds" class="ds"> Delete</div>
-       
+    <div id="Guidelines">
+      <div class="guide"> <img src="./Style/png/black dot.png" alt="bd" class="bd">MainTask</div>
+      <div class="guide"> <img src="./Style/png/circle-clipart-hollow.png" alt="hd" class="hd">SubTask</div>
+      <div class="guide"> <img src="./Style/png/plus_sign.png" alt="ps" class="ps">Add</div>
+      <div class="guide"> <img src="./Style/png/first_arrow.png" alt="fa" class="fa">Branch</div>
+      <div class="guide"> <img src="./Style/png/Red_X.svg.png" alt="ds" class="ds"> Delete</div>
     </div>
 
-</div>
-    <script src="./index.js" charset="UTF-8"> </script>
+    <button id="switchbtn" aria-pressed="false">
+      <img id="switchIcon" src="./Style/png/arrow-down-up.svg" alt="switch icon" />
+      <span id="switchText">Switch Vertically</span>
+    </button>
+
+    <div class="main" id="tasks-root">
+      <!-- initial main task (JS will clone this template when adding) -->
+      <div class="task-row" data-task-id="1">
+        <input class="round-checkbox" type="checkbox" />
+        <div class="task-input">
+
+          <!-- <input type="text" placeholder="Add a task to your flow…" /> -->
+
+          <textarea class="task-textarea" rows="1" wrap="soft" placeholder="Add a task to your flow…"></textarea>
+        </div>
+        
+      </div>
+      <div class="task-actions">
+          <button type="button" title="Add new task" data-action="add-task"><img src="./Style/png/plus_sign.png" alt="add" /></button>
+          <button type="button" title="Add branch (sub-task)" data-action="add-branch"><img src="./Style/png/first_arrow.png" alt="branch" /></button>
+          <button type="button" title="Delete task" data-action="delete-task"><img src="./Style/png/Red_X.svg.png" alt="delete" /></button>
+        </div>
+      <!-- subtasks area for task 1 (empty initially) -->
+      <div class="subtasks" data-parent-id="1"></div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="./index.js" charset="utf-8"></script>
 </body>
 </html>
