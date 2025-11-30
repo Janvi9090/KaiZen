@@ -62,10 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Add task functionality
+  // Add task functionality (single consolidated handler)
   let taskCounter = 1;
+  const bigBox = document.getElementById('big-box');
+  const svg = document.getElementById('connectors-svg');
 
-  // Create a new main task box (complete structure)
   function createNewMainTask(id) {
     const mainDiv = document.createElement('div');
     mainDiv.className = 'main';
@@ -97,27 +98,85 @@ document.addEventListener('DOMContentLoaded', () => {
     return mainDiv;
   }
 
-  // Event delegation for add button
-  const bigBox = document.getElementById('big-box');
-  
+  function updateSvgSize() {
+    if (!svg || !bigBox) return;
+    const w = Math.max(bigBox.scrollWidth, bigBox.clientWidth);
+    const h = Math.max(bigBox.scrollHeight, bigBox.clientHeight);
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.style.width = `${w}px`;
+    svg.style.height = `${h}px`;
+  }
+
+  function getCenterRelative(el) {
+    const elRect = el.getBoundingClientRect();
+    const parentRect = bigBox.getBoundingClientRect();
+    return {
+      x: elRect.left - parentRect.left + elRect.width / 2 + bigBox.scrollLeft,
+      y: elRect.top - parentRect.top + elRect.height / 2 + bigBox.scrollTop
+    };
+  }
+
+  function drawLineBetweenCenters(fromEl, toEl, fromId, toId) {
+    if (!svg || !fromEl || !toEl) return null;
+    updateSvgSize();
+    const p1 = getCenterRelative(fromEl);
+    const p2 = getCenterRelative(toEl);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', p1.x);
+    line.setAttribute('y1', p1.y);
+    line.setAttribute('x2', p2.x);
+    line.setAttribute('y2', p2.y);
+    line.setAttribute('stroke', '#0b6b4b');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-linecap', 'round');
+    if (fromId) line.dataset.from = String(fromId);
+    if (toId) line.dataset.to = String(toId);
+    svg.appendChild(line);
+    return line;
+  }
+
+  // Single delegated click handler for whole bigBox (add-task, future actions)
   bigBox.addEventListener('click', (ev) => {
-    const btn = ev.target.closest('button');
-    if (!btn) return;
-    const action = btn.dataset.action;
+    const clickedBtn = ev.target.closest('button');
+    if (!clickedBtn) return;
+    const action = clickedBtn.dataset.action;
+    if (!action) return;
 
     if (action === 'add-task') {
+      // find previous .main (last existing) before creating new
+      const mains = Array.from(bigBox.querySelectorAll('.main'));
+      const prevMain = mains.length ? mains[mains.length - 1] : null;
+
+      // create and append exactly one new main box
       taskCounter += 1;
       const newMain = createNewMainTask(taskCounter);
       bigBox.appendChild(newMain);
 
-      // Auto-resize the new textarea
+      // resize textarea in new box
       const newTextarea = newMain.querySelector('.task-textarea');
       autoResizeTextarea(newTextarea);
 
-      // Scroll to the new box
+      // draw connection from previous -> new (if previous exists)
+      requestAnimationFrame(() => {
+        if (prevMain) {
+          drawLineBetweenCenters(prevMain, newMain, prevMain.id?.split('-').pop(), taskCounter);
+        }
+        updateSvgSize();
+      });
+
       newMain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
+
+    // other actions (branch/delete) left unimplemented for now
   });
+
+  // redraw lines on resize/scroll
+  window.addEventListener('resize', updateSvgSize);
+  bigBox.addEventListener('scroll', updateSvgSize);
+
+  // initial svg sizing
+  requestAnimationFrame(updateSvgSize);
 });
 
 
