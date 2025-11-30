@@ -215,6 +215,22 @@
     /* ensure .main boxes sit above the svg */
     .main { position: relative; z-index: 1; }
 
+    .branch-box{
+        border: 1px solid green;
+        border-radius: 10px;
+        padding: 8px;
+        background: #fff;
+        margin-left: 400px; /* keeps the branch offset from main */
+        margin-top: 10px;
+        box-sizing: border-box;
+        width: 320px;        /* reduced width for sub task box */
+        max-width: 320px;
+    }
+     .branch-box .task-input{
+        width: 100%;
+        max-width: 280px;
+        flex: 0 0 auto;
+    }
     @media(max-width:550px){ .task-actions{ gap:8px; } }
   </style>
 </head>
@@ -255,8 +271,10 @@
              <textarea class="task-textarea" rows="1" wrap="soft" placeholder="Add a task to your flow…"></textarea>
             </div>
         </div>
-        <!-- third action -->
+        
       </div>
+              
+      <!-- third action -->
       <div class="task-actions">
           <button type="button" title="Add new task" data-action="add-task">
             <img src="./Style/png/plus_sign.png" alt="add" />
