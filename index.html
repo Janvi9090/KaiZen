@@ -29,7 +29,9 @@
     #switchbtn{ 
         display:inline-flex; 
         align-items:center; 
-        gap:6px; cursor:pointer; 
+        gap:6px; cursor:pointer;
+        border-radius: 10px;
+        padding: 6px 12px;; 
     }
     #switchIcon{ 
         height:18px; 
@@ -84,7 +86,7 @@
         max-width: 350px;
         flex:1 1 auto; 
         display:flex; 
-        align-items:center; 
+        align-items:flex-start; 
         gap:8px; 
     }
     .task-input input[type="text"]{ 
@@ -104,7 +106,7 @@
         border-radius:8px;
         border:none;
         outline:none;
-        font-size:14px;
+        font-size:17px;
         background:transparent;
         resize:none;              /* user cannot drag-resize */
         overflow:hidden;          /* hide scrollbars (height controlled by JS) */
@@ -117,10 +119,14 @@
     /* keep checkbox on first line (top) */
     .task-row{
         display:flex;
-        align-items:flex-start;
-        gap:10px;
+        gap:6px;
+        flex-direction: column;
+        position: relative;
     }
-    .round-checkbox{ margin-top:6px; } /* small offset so checkbox aligns with first line */
+    .round-checkbox{ 
+        margin-top:6px;
+        flex: 0 0 auto;
+     } /* small offset so checkbox aligns with first line */
 
 
     /* action icons inside each task row */
@@ -132,21 +138,72 @@
         width: 100%;
         margin-top: 4px;
     }
-    .task-actions button{ background:transparent; border:none; padding:4px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
-    .task-actions img{ width:18px; height:18px; }
-    .task-actions button[data-action="add-task"] img{ width:24px; height:24px; }
+    .task-actions button{ 
+        background:transparent; 
+        border:none; 
+        padding:4px; 
+        cursor:pointer; 
+        display:inline-flex; 
+        align-items:center; 
+        justify-content:center; 
+    }
+    .task-actions img{ 
+        width:18px; 
+        height:18px; 
+    }
+    .task-actions button[data-action="add-task"] img{ 
+        width:24px; 
+        height:24px; 
+    }
 
     /* connector between main tasks (vertical line) */
-    .connector{ width:2px; height:18px; background:#0b6b4b; margin:6px auto; }
+    .connector{ 
+        width:2px; 
+        height:18px; 
+        background:#0b6b4b; 
+        margin:6px auto; 
+    }
 
     /* subtasks container and style */
-    .subtasks{ margin-left:34px; margin-top:6px; display:flex; flex-direction:column; gap:6px; }
-    .subtask-row{ display:flex; align-items:center; gap:8px; padding:6px; background:#fbfffb; border-radius:6px; }
-    .branch-connector{ width:14px; height:2px; background:#0b6b4b; margin-left:20px; margin-bottom:4px; }
+    .subtasks{ margin-left:34px; 
+        margin-top:6px; 
+        display:flex; 
+        flex-direction:column; 
+        gap:6px; 
+    }
+        
+    .subtask-row{ 
+        display:flex; 
+        align-items:center; 
+        gap:8px; 
+        padding:6px; 
+        background:#fbfffb; 
+        border-radius:6px; 
+    }
+    .branch-connector{ 
+        width:14px; 
+        height:2px; 
+        background:#0b6b4b; 
+        margin-left:20px; 
+        margin-bottom:4px; 
+    }
+    .task-label{
+        font-size: 18px;
+        font-weight:650;
+        color: rgb(32, 69, 38);
+        text-align: left;
+    }
+
+    .task-top{
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
     @media(max-width:550px){ .task-actions{ gap:8px; } }
   </style>
 </head>
+
 <body>
   <div id="big-box">
     <h1>Flow Task Maker</h1>
@@ -168,21 +225,31 @@
     <div class="main" id="tasks-root">
       <!-- initial main task (JS will clone this template when adding) -->
       <div class="task-row" data-task-id="1">
-        <input class="round-checkbox" type="checkbox" />
-        <div class="task-input">
 
-          <!-- <input type="text" placeholder="Add a task to your flow…" /> -->
-
-          <textarea class="task-textarea" rows="1" wrap="soft" placeholder="Add a task to your flow…"></textarea>
-        </div>
+        <!-- first line -->
+        <div class="task-label"> Main Task</div>
         
+        <!-- second line -->
+        <div class="task-top">
+        <input class="round-checkbox" type="checkbox" />
+            <div class="task-input">
+             <!-- <input type="text" placeholder="Add a task to your flow…" /> -->
+             <textarea class="task-textarea" rows="1" wrap="soft" placeholder="Add a task to your flow…"></textarea>
+            </div>
+        </div>
+        <!-- third action -->
       </div>
       <div class="task-actions">
-          <button type="button" title="Add new task" data-action="add-task"><img src="./Style/png/plus_sign.png" alt="add" /></button>
-          <button type="button" title="Add branch (sub-task)" data-action="add-branch"><img src="./Style/png/first_arrow.png" alt="branch" /></button>
-          <button type="button" title="Delete task" data-action="delete-task"><img src="./Style/png/Red_X.svg.png" alt="delete" /></button>
+          <button type="button" title="Add new task" data-action="add-task">
+            <img src="./Style/png/plus_sign.png" alt="add" />
+        </button>
+          <button type="button" title="Add branch (sub-task)" data-action="add-branch">
+            <img src="./Style/png/first_arrow.png" alt="branch" />
+        </button>
+          <button type="button" title="Delete task" data-action="delete-task">
+            <img src="./Style/png/Red_X.svg.png" alt="delete" />
+        </button>
         </div>
-      <!-- subtasks area for task 1 (empty initially) -->
       <div class="subtasks" data-parent-id="1"></div>
     </div>
   </div>

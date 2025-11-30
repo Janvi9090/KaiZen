@@ -34,14 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Auto-resize textareas: initial height 90px, grow up to 400px, no width limits, no scrollbars
+  // Auto-resize textareas: initial height 90px, grow up to 400px
   const MAX_HEIGHT_PX = 400;
   const INITIAL_HEIGHT_PX = 30;
 
   function autoResizeTextarea(t) {
     if (!t) return;
     t.style.boxSizing = 'border-box';
-    t.style.overflow = 'hidden';      // hide scrollbars
+    t.style.overflow = 'hidden';
     t.style.maxHeight = MAX_HEIGHT_PX + 'px';
 
     // Reset height to measure content
@@ -62,56 +62,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // If you create new task rows in JS, call autoResizeTextarea(newRow.querySelector('.task-textarea')) after inserting them.
-});
+  // Add task functionality
+  let taskCounter = 1;
 
-  // event delegation for action buttons inside tasksRoot
-  tasksRoot.addEventListener('click', (ev) => {
+  // Create a new main task box (complete structure)
+  function createNewMainTask(id) {
+    const mainDiv = document.createElement('div');
+    mainDiv.className = 'main';
+    mainDiv.id = `tasks-root-${id}`;
+    mainDiv.style.marginTop = '20px'; // spacing between boxes
+    mainDiv.innerHTML = `
+      <div class="task-row" data-task-id="${id}">
+        <div class="task-label">Main Task</div>
+        <div class="task-top">
+          <input class="round-checkbox" type="checkbox" />
+          <div class="task-input">
+            <textarea class="task-textarea" rows="1" wrap="soft" placeholder="Add a task to your flow…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="task-actions">
+        <button type="button" title="Add new task" data-action="add-task">
+          <img src="./Style/png/plus_sign.png" alt="add" />
+        </button>
+        <button type="button" title="Add branch (sub-task)" data-action="add-branch">
+          <img src="./Style/png/first_arrow.png" alt="branch" />
+        </button>
+        <button type="button" title="Delete task" data-action="delete-task">
+          <img src="./Style/png/Red_X.svg.png" alt="delete" />
+        </button>
+      </div>
+      <div class="subtasks" data-parent-id="${id}"></div>
+    `;
+    return mainDiv;
+  }
+
+  // Event delegation for add button
+  const bigBox = document.getElementById('big-box');
+  
+  bigBox.addEventListener('click', (ev) => {
     const btn = ev.target.closest('button');
     if (!btn) return;
     const action = btn.dataset.action;
-    const currentTaskRow = btn.closest('.task-row');
-    if (!action || !currentTaskRow) return;
 
-    // Temporarily disable add and branch functionality
-    if (action === 'add-task' || action === 'add-branch') {
-      // no-op for now; keep UI buttons visible but non-functional
-      // you can enable later by removing this conditional
-      return;
+    if (action === 'add-task') {
+      taskCounter += 1;
+      const newMain = createNewMainTask(taskCounter);
+      bigBox.appendChild(newMain);
+
+      // Auto-resize the new textarea
+      const newTextarea = newMain.querySelector('.task-textarea');
+      autoResizeTextarea(newTextarea);
+
+      // Scroll to the new box
+      newMain.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    // ...other actions (e.g. delete) can remain here or be implemented later...
   });
+});
 
-  const makeTaskRow = (id) => {
-    const row = document.createElement('div');
-    row.className = 'task-row';
-    row.dataset.taskId = String(id);
-    row.innerHTML = `
-      <input class="round-checkbox" type="checkbox" />
-      <div class="task-input">
-        <textarea class="task-textarea" rows="1" placeholder="Add a task to your flow…"></textarea>
-      </div>
-      <div class="task-actions">
-        <button type="button" title="Add new task" data-action="add-task"><img src="./Style/png/plus_sign.png" alt="add" /></button>
-        <button type="button" title="Add branch (sub-task)" data-action="add-branch"><img src="./Style/png/first_arrow.png" alt="branch" /></button>
-        <button type="button" title="Delete task" data-action="delete-task"><img src="./Style/png/Red_X.svg.png" alt="delete" /></button>
-      </div>`;
-    return row;
-  };
 
-  const makeSubTask = (parentId, subId) => {
-    const sr = document.createElement('div');
-    sr.className = 'subtask-row';
-    sr.dataset.subId = `${parentId}-${subId}`;
-    sr.innerHTML = `
-      <input class="round-checkbox" type="checkbox" />
-      <div style="flex:1">
-        <textarea class="task-textarea" rows="1" placeholder="Sub-task name…"></textarea>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button type="button" title="Delete subtask" data-action="delete-subtask"><img src="./Style/png/Red_X.svg.png" alt="del" style="width:16px;height:16px" /></button>
-      </div>
-    `;
-    return sr;
-  };
